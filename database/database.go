@@ -23,10 +23,10 @@ func Connect() {
 	if dbClient == nil {
 		MONGO_URI := config.GetConfig().MONGO_URI
 
-		client, err := mongo.NewClient(options.Client().ApplyURI(MONGO_URI))
-		if err != nil {
-			fmt.Println(err)
-			panic(err)
+		client, err_client := mongo.NewClient(options.Client().ApplyURI(MONGO_URI))
+		if err_client != nil {
+			fmt.Println(err_client)
+			panic(err_client)
 		}
 		dbClient = client
 
@@ -35,14 +35,14 @@ func Connect() {
 	ctx, cancel := Context()
 	defer cancel()
 
-	err := dbClient.Connect(ctx)
-	if err != nil {
-		panic(err)
+	err_conn := dbClient.Connect(ctx)
+	if err_conn != nil {
+		panic(err_conn)
 	}
 
-	err = dbClient.Ping(ctx, nil)
-	if err != nil {
-		panic(err)
+	err_ping := dbClient.Ping(ctx, nil)
+	if err_ping != nil {
+		panic(err_ping)
 	}
 
 	db = dbClient.Database(dbName)
@@ -58,9 +58,9 @@ func Context() (context.Context, context.CancelFunc) {
 }
 
 func ValidCollection(coll string) bool {
-	coll_lst, err := db.ListCollectionNames(context.TODO(), bson.D{})
+	coll_lst, err_coll := db.ListCollectionNames(context.TODO(), bson.D{})
 
-	if err != nil {
+	if err_coll != nil {
 		return false
 	}
 	for _, c := range coll_lst {
