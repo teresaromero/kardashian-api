@@ -48,6 +48,13 @@ func Connect() {
 	db = dbClient.Database(dbName)
 }
 
+func Disconnect() {
+	err_disc := dbClient.Disconnect(context.Background())
+	if err_disc != nil {
+		panic(err_disc)
+	}
+}
+
 func Use(tableName string) *mongo.Collection {
 	coll := db.Collection(tableName)
 	return coll
