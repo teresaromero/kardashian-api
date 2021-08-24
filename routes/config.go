@@ -22,7 +22,7 @@ func Routes() routes {
 	r.collectionRoutes(v1)
 
 	r.router.NoRoute(func(c *gin.Context) {
-		c.JSON(404, gin.H{"message": "Not found"})
+		c.JSON(http.StatusNotFound, gin.H{"message": "Not found"})
 	})
 
 	return r
