@@ -30,3 +30,20 @@ func Collection(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"response": coll_items})
 
 }
+
+func AvailableCollections(c *gin.Context) {
+
+	cls, err := database.Collections()
+	if err != nil {
+		panic(err)
+	}
+
+	var rsp []*models.AvailableCollection
+	baseUrl := c.Request.URL.String()
+	for _, col := range cls {
+		rsp = append(rsp, &models.AvailableCollection{Name: col, Url: baseUrl + col})
+	}
+
+	c.JSON(http.StatusOK, rsp)
+
+}
