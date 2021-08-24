@@ -2,6 +2,8 @@ package models
 
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
+const WikiEpisodes Collection = "wiki_episodes"
+
 type WikiEpisode struct {
 	Id            primitive.ObjectID `json:"_id" bson:"_id"`
 	AirDate       primitive.DateTime `json:"air_date" bson:"air_date"`

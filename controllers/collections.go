@@ -1,13 +1,36 @@
 package controllers
 
 import (
+	"context"
 	"kardashian_api/database"
 	"kardashian_api/models"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func Collection(tableName string) (items []models.IMBDEpisode, err error) {
+func ParseCollection(cursor *mongo.Cursor, tableName string, ctx context.Context) (interface{}, error) {
+	var imbd_episode_items []models.IMBDEpisode
+	var imbd_episode_credit_items []models.IMBDEpisodeCredit
+
+	var wiki_episode_items []models.WikiEpisode
+	var err error
+	var result interface{}
+
+	if tableName == string(models.WikiEpisodes) {
+		err = cursor.All(ctx, &wiki_episode_items)
+		result = wiki_episode_items
+	} else if tableName == string(models.IMBDEpisodes) {
+		err = cursor.All(ctx, &imbd_episode_items)
+		result = imbd_episode_items
+	} else if tableName == string(models.IMBDEpisodeCredits) {
+		err = cursor.All(ctx, &imbd_episode_credit_items)
+		result = imbd_episode_credit_items
+	}
+	return result, err
+}
+
+func Collection(tableName string) (items interface{}, err error) {
 	collection := database.Use(tableName)
 
 	ctx, cancel := database.Context()
@@ -19,14 +42,12 @@ func Collection(tableName string) (items []models.IMBDEpisode, err error) {
 	}
 	defer cursor.Close(ctx)
 
-	// TODO: parse each collection model, using Episode as placeholder for now
-	var coll_items []models.IMBDEpisode
-	err_cursor := cursor.All(ctx, &coll_items)
-	if err_cursor != nil {
-		return nil, err_cursor
-
+	result, err := ParseCollection(cursor, tableName, ctx)
+	if err != nil {
+		return nil, err
 	}
-	return coll_items, nil
+
+	return result, nil
 
 }
 
