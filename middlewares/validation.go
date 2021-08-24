@@ -10,11 +10,14 @@ import (
 func ValidateCollection() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		collection := c.Param("collection")
-		isValid := database.ValidCollection(collection)
+		if collection != "" {
+			isValid := database.ValidCollection(collection)
 
-		if !isValid {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Collection Not Valid"})
+			if !isValid {
+				c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Collection Not Valid"})
+			}
 		}
+
 		c.Next()
 	}
 }
