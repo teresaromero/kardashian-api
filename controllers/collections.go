@@ -3,14 +3,16 @@ package controllers
 import (
 	"kardashian_api/database"
 	"kardashian_api/models"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 func Collection(c *gin.Context) {
-	collection := database.Use(c.Param("collection"))
+	coll_param := c.Param("collection")
+
+	if database.ValidCollection(coll_param) {
+		collection := database.Use(coll_param)
 
 		ctx, cancel := database.Context()
 		defer cancel()
@@ -26,6 +28,9 @@ func Collection(c *gin.Context) {
 	if err_cursor != nil {
 		panic((err_cursor))
 		}
-	c.JSON(http.StatusOK, gin.H{"response": coll_items})
+		c.JSON(200, coll_items)
+	}
+
+	c.JSON(400, gin.H{"error": "Collection not valid"})
 
 }
