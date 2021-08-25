@@ -18,6 +18,7 @@ func Routes() routes {
 	v1 := r.router.Group("/api/v1")
 
 	r.collectionRoutes(v1)
+	r.episodesRoutes(v1)
 
 	r.router.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"message": "Not found"})
