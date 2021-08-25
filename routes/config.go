@@ -14,9 +14,6 @@ func Routes() routes {
 	r := routes{
 		router: gin.Default(),
 	}
-
-	r.router.StaticFS("/openapi", http.Dir("public"))
-
 	v1 := r.router.Group("/api/v1")
 
 	r.collectionRoutes(v1)
