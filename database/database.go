@@ -65,7 +65,7 @@ func Context() (context.Context, context.CancelFunc) {
 }
 
 func ValidCollection(coll string) bool {
-	coll_lst, err_coll := Collections()
+	coll_lst, err_coll := db.ListCollectionNames(context.TODO(), bson.D{})
 
 	if err_coll != nil {
 		return false
@@ -76,8 +76,4 @@ func ValidCollection(coll string) bool {
 		}
 	}
 	return false
-}
-
-func Collections() ([]string, error) {
-	return db.ListCollectionNames(context.TODO(), bson.D{})
 }
