@@ -56,17 +56,3 @@ func Use(tableName string) *mongo.Collection {
 func Context() (context.Context, context.CancelFunc) {
 	return context.WithTimeout(context.Background(), 5*time.Second)
 }
-
-func ValidCollection(coll string) bool {
-	coll_lst, err := db.ListCollectionNames(context.TODO(), bson.D{})
-
-	if err != nil {
-		return false
-	}
-	for _, c := range coll_lst {
-		if c == coll {
-			return true
-		}
-	}
-	return false
-}
