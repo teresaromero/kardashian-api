@@ -17,16 +17,16 @@ func Collection(c *gin.Context) {
 		ctx, cancel := database.Context()
 		defer cancel()
 
-	cursor, err_find := collection.Find(ctx, bson.D{})
-	if err_find != nil {
-		panic(err_find)
+		cursor, err := collection.Find(ctx, bson.D{})
+		if err != nil {
+			panic(err)
 		}
 		defer cursor.Close(ctx)
 
 		// TODO: parse each collection model, using Episode as placeholder for now
-	err_cursor := cursor.All(ctx, &coll_items)
-	if err_cursor != nil {
-		panic((err_cursor))
+		var coll_items []models.Episode
+		if err = cursor.All(ctx, &coll_items); err != nil {
+			panic((err))
 		}
 		c.JSON(200, coll_items)
 	}
