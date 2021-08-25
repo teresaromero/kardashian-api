@@ -12,7 +12,7 @@ func GetCollection(c *gin.Context) {
 	tableName := c.Param("collection")
 	items, err := controllers.Collection(tableName)
 	if err != nil {
-		utils.HandleHttpError(c, err)
+		utils.HandleError(c, http.StatusInternalServerError, err)
 	} else {
 		c.JSON(http.StatusOK, items)
 	}
@@ -21,7 +21,7 @@ func GetCollection(c *gin.Context) {
 func GetAvailableCollection(c *gin.Context) {
 	rsp, err := controllers.AvailableCollections(c.Request.URL.String())
 	if err != nil {
-		utils.HandleHttpError(c, err)
+		utils.HandleError(c, http.StatusInternalServerError, err)
 	} else {
 		c.JSON(http.StatusOK, rsp)
 	}
