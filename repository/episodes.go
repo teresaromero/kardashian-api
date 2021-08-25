@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"kardashian_api/custom_errors"
 	"kardashian_api/database"
 	"kardashian_api/models"
 
@@ -9,7 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func GetAllEpisodes() ([]models.Episode, *custom_errors.HttpError) {
+func GetAllEpisodes() ([]models.Episode, error) {
 
 	ctx, cancel := database.Context()
 	defer cancel()
@@ -17,20 +16,20 @@ func GetAllEpisodes() ([]models.Episode, *custom_errors.HttpError) {
 	cursor, err := database.Use("episodes").Find(ctx, bson.D{})
 
 	if err != nil {
-		return nil, custom_errors.InternalServerError(err)
+		return nil, err
 	}
 	defer cursor.Close(ctx)
 
 	var episodes []models.Episode
 	err = cursor.All(ctx, &episodes)
 	if err != nil {
-		return nil, custom_errors.InternalServerError(err)
+		return nil, err
 	}
 
 	return episodes, nil
 }
 
-func GetEpisodeByNumber(num int) (interface{}, *custom_errors.HttpError) {
+func GetEpisodeByNumber(num int) (interface{}, error) {
 
 	ctx, cancel := database.Context()
 	defer cancel()
@@ -40,7 +39,7 @@ func GetEpisodeByNumber(num int) (interface{}, *custom_errors.HttpError) {
 	var episode models.Episode
 	err := result.Decode(&episode)
 	if err != nil {
-		return nil, custom_errors.BadRequest(err)
+		return nil, err
 	}
 	return episode, nil
 }

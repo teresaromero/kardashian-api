@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"kardashian_api/controllers"
+	"kardashian_api/repository"
 	"kardashian_api/utils"
 	"net/http"
 	"strconv"
@@ -10,9 +10,9 @@ import (
 )
 
 func GetAllEpisodes(c *gin.Context) {
-	episodes, err := controllers.GetAllEpisodes()
+	episodes, err := repository.GetAllEpisodes()
 	if err != nil {
-		utils.HandleHttpError(c, err)
+		utils.HandleError(c, http.StatusInternalServerError, err)
 	} else {
 		c.JSON(http.StatusOK, episodes)
 	}
@@ -20,9 +20,9 @@ func GetAllEpisodes(c *gin.Context) {
 
 func GetEpisodeByNumber(c *gin.Context) {
 	n, _ := strconv.Atoi(c.Param("number"))
-	episode, err := controllers.GetEpisodeByNumber(n)
+	episode, err := repository.GetEpisodeByNumber(n)
 	if err != nil {
-		utils.HandleHttpError(c, err)
+		utils.HandleError(c, http.StatusInternalServerError, err)
 	} else {
 		c.JSON(http.StatusOK, episode)
 	}
