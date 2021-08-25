@@ -11,7 +11,6 @@ func (r routes) collectionRoutes(rg *gin.RouterGroup) {
 	collections := rg.Group("collections")
 	collections.Use(middlewares.ValidateCollection())
 	{
-		collections.GET("/", controllers.AvailableCollections)
 		collections.GET("/:collection", controllers.Collection)
 	}
 }
