@@ -1,9 +1,10 @@
 package middlewares
 
 import (
-	"kardashian_api/custom_errors"
+	"errors"
 	"kardashian_api/database"
 	"kardashian_api/utils"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,8 +16,7 @@ func ValidateCollection() gin.HandlerFunc {
 			isValid := database.ValidCollection(collection)
 
 			if !isValid {
-				err := custom_errors.InvalidCollection(collection)
-				utils.HandleHttpError(c, err)
+				utils.HandleError(c, http.StatusBadRequest, errors.New("invalid collection"))
 			}
 		}
 
