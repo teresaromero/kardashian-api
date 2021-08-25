@@ -3,19 +3,21 @@ package controllers
 import (
 	"kardashian_api/database"
 	"kardashian_api/models"
+	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func Collection(tableName string) (items []models.IMBDEpisode, err error) {
-	collection := database.Use(tableName)
+func Collection(c *gin.Context) {
+	collection := database.Use(c.Param("collection"))
 
 	ctx, cancel := database.Context()
 	defer cancel()
 
 	cursor, err_find := collection.Find(ctx, bson.D{})
 	if err_find != nil {
-		return nil, err_find
+		panic(err_find)
 	}
 	defer cursor.Close(ctx)
 
@@ -23,26 +25,25 @@ func Collection(tableName string) (items []models.IMBDEpisode, err error) {
 	var coll_items []models.IMBDEpisode
 	err_cursor := cursor.All(ctx, &coll_items)
 	if err_cursor != nil {
-		return nil, err_cursor
-
+		panic((err_cursor))
 	}
-	return coll_items, nil
+	c.JSON(http.StatusOK, gin.H{"response": coll_items})
 
 }
 
-func AvailableCollections(baseURL string) ([]*models.AvailableCollection, error) {
+func AvailableCollections(c *gin.Context) {
 
 	cls, err := database.Collections()
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
 	var rsp []*models.AvailableCollection
-	baseUrl := baseURL
+	baseUrl := c.Request.URL.String()
 	for _, col := range cls {
 		rsp = append(rsp, &models.AvailableCollection{Name: col, Url: baseUrl + col})
 	}
 
-	return rsp, nil
+	c.JSON(http.StatusOK, rsp)
 
 }
