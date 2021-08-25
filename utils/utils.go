@@ -1,7 +1,11 @@
 package utils
 
-import "github.com/gin-gonic/gin"
+import (
+	errors "kardashian_api/custom_errors"
 
-func HandleError(c *gin.Context, status int, err error) {
-	c.AbortWithStatusJSON(status, gin.H{"status": status, "message": err.Error()})
+	"github.com/gin-gonic/gin"
+)
+
+func HandleHttpError(c *gin.Context, err *errors.HttpError) {
+	c.AbortWithStatusJSON(err.Status(), gin.H{"status": err.Status(), "message": err.Error()})
 }
