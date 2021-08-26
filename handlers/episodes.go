@@ -16,5 +16,5 @@ func GetAllEpisodes(c *gin.Context) {
 func GetEpisodeByNumber(c *gin.Context) {
 	n, _ := strconv.Atoi(c.Param("number"))
 	episode, err := controllers.GetEpisodeByNumber(n)
-	utils.HandleResponse(c, episode, err)
+	utils.HandleSingleResponse(c, episode, err)
 }
