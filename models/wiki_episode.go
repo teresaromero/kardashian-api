@@ -11,6 +11,6 @@ type WikiEpisode struct {
 	SeasonEpisode int                `json:"episode" bson:"episode"`
 	Episode       int                `json:"episode_overall" bson:"episode_overall"`
 	Special       bool               `json:"special_episode" bson:"special_episode"`
-	Season        int                `json:"season" bson:"season"`
-	Viewers       float64            `json:"us_viewers" bson:"us_viewers"`
+	Season        string             `json:"season,omitempty" bson:"season,omitempty"` // Optional
+	Viewers       float64            `json:"us_viewers" bson:"us_viewers"`             // Optional
 }
