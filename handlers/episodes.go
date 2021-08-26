@@ -9,8 +9,10 @@ import (
 )
 
 func GetAllEpisodes(c *gin.Context) {
-	episodes, err := controllers.GetAllEpisodes()
-	utils.HandleResponse(c, episodes, err)
+	p := utils.GetPaginationContext(c.Request)
+
+	episodes, err := controllers.GetAllEpisodes(p)
+	utils.HandlePageResponse(c, episodes, err)
 }
 
 func GetEpisodeByNumber(c *gin.Context) {

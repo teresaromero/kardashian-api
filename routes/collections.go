@@ -10,6 +10,7 @@ import (
 func (r routes) collectionRoutes(rg *gin.RouterGroup) {
 	collections := rg.Group("collections")
 	collections.Use(middlewares.ValidateCollection())
+	collections.Use(middlewares.Pagination("collections"))
 	{
 		collections.GET("/", handlers.GetAvailableCollection)
 		collections.GET("/:collection", handlers.GetCollection)

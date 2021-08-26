@@ -18,3 +18,12 @@ func HandleSingleResponse(c *gin.Context, data interface{}, err *custom_errors.H
 		c.JSON(http.StatusOK, data)
 	}
 }
+
+func HandlePageResponse(c *gin.Context, data interface{}, err *custom_errors.HttpError) {
+	if err != nil {
+		HandleHttpError(c, err)
+	} else {
+		page := pageResponse(c.Request, data)
+		c.JSON(http.StatusOK, page)
+	}
+}

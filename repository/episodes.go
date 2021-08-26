@@ -7,15 +7,22 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func GetAllEpisodes() ([]models.Episode, *custom_errors.HttpError) {
+func GetAllEpisodes(p *models.PaginationOpts) ([]models.Episode, *custom_errors.HttpError) {
+
+	opts := options.Find()
+	opts.SetLimit(int64(p.Limit))
+	opts.SetSkip(int64(p.Skip))
+	opts.SetSort(bson.D{{Key: "episode_overall", Value: 1}})
+
+	filter := bson.D{}
 
 	ctx, cancel := database.Context()
 	defer cancel()
 
-	cursor, err := database.Use("episodes").Find(ctx, bson.D{})
-
+	cursor, err := database.Use("episodes").Find(ctx, filter, opts)
 	if err != nil {
 		return nil, custom_errors.InternalServerError(err)
 	}

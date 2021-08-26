@@ -6,8 +6,8 @@ import (
 	"kardashian_api/repository"
 )
 
-func GetAllEpisodes() ([]models.Episode, *custom_errors.HttpError) {
-	return repository.GetAllEpisodes()
+func GetAllEpisodes(pagination *models.PaginationOpts) ([]models.Episode, *custom_errors.HttpError) {
+	return repository.GetAllEpisodes(pagination)
 }
 
 func GetEpisodeByNumber(n int) (interface{}, *custom_errors.HttpError) {

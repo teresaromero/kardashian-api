@@ -10,7 +10,7 @@ import (
 func GetCollection(c *gin.Context) {
 	tableName := c.Param("collection")
 	items, err := controllers.Collection(tableName)
-	utils.HandleResponse(c, items, err)
+	utils.HandlePageResponse(c, items, err)
 }
 
 func GetAvailableCollection(c *gin.Context) {
