@@ -15,5 +15,5 @@ func GetCollection(c *gin.Context) {
 
 func GetAvailableCollection(c *gin.Context) {
 	rsp, err := controllers.AvailableCollections(c.Request.URL.String())
-	utils.HandleResponse(c, rsp, err)
+	utils.HandleSingleResponse(c, rsp, err)
 }
