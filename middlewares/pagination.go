@@ -25,8 +25,8 @@ func validatePagination(skip int, total int64) error {
 	return nil
 }
 
-func paginationParams(page_query string) (page int, skip int, limit int) {
-	p, _ := strconv.Atoi(page_query)
+func paginationParams(pageQuery string) (page int, skip int, limit int) {
+	p, _ := strconv.Atoi(pageQuery)
 	limit = 10
 	if p == 0 {
 		page = p + 1
@@ -45,13 +45,13 @@ func Pagination(collection string) gin.HandlerFunc {
 		if err != nil {
 			utils.HandleHttpError(c, custom_errors.BadRequest(err))
 		} else {
-			pagination_opts := &models.PaginationOpts{
+			paginationOpts := &models.PaginationOpts{
 				Page:  page,
 				Limit: limit,
 				Skip:  skip,
 				Total: int(total),
 			}
-			c.Request = utils.AddToRequest(c.Request, "pagination", pagination_opts)
+			c.Request = utils.AddToRequest(c.Request, "pagination", paginationOpts)
 
 			c.Next()
 		}

@@ -21,12 +21,12 @@ var db *mongo.Database
 func Connect() {
 
 	if dbClient == nil {
-		MONGO_URI := config.GetConfig().MONGO_URI
+		MongoUri := config.GetConfig().MongoUri
 
-		client, err_client := mongo.NewClient(options.Client().ApplyURI(MONGO_URI))
-		if err_client != nil {
-			fmt.Println(err_client)
-			panic(err_client)
+		client, errClient := mongo.NewClient(options.Client().ApplyURI(MongoUri))
+		if errClient != nil {
+			fmt.Println(errClient)
+			panic(errClient)
 		}
 		dbClient = client
 
@@ -35,24 +35,17 @@ func Connect() {
 	ctx, cancel := Context()
 	defer cancel()
 
-	err_conn := dbClient.Connect(ctx)
-	if err_conn != nil {
-		panic(err_conn)
+	errConn := dbClient.Connect(ctx)
+	if errConn != nil {
+		panic(errConn)
 	}
 
-	err_ping := dbClient.Ping(ctx, nil)
-	if err_ping != nil {
-		panic(err_ping)
+	errPing := dbClient.Ping(ctx, nil)
+	if errPing != nil {
+		panic(errPing)
 	}
 
 	db = dbClient.Database(dbName)
-}
-
-func Disconnect() {
-	err_disc := dbClient.Disconnect(context.Background())
-	if err_disc != nil {
-		panic(err_disc)
-	}
 }
 
 func Use(tableName string) *mongo.Collection {
@@ -65,12 +58,12 @@ func Context() (context.Context, context.CancelFunc) {
 }
 
 func ValidCollection(coll string) bool {
-	coll_lst, err_coll := Collections()
+	collLst, errColl := Collections()
 
-	if err_coll != nil {
+	if errColl != nil {
 		return false
 	}
-	for _, c := range coll_lst {
+	for _, c := range collLst {
 		if c == coll {
 			return true
 		}
