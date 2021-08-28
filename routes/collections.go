@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (r routes) collectionRoutes(rg *gin.RouterGroup) {
+func collectionRoutes(rg *gin.RouterGroup) {
 	collections := rg.Group("collections")
 	collections.Use(middlewares.ValidateCollection())
 	collections.Use(middlewares.Pagination("collections"))

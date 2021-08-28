@@ -2,8 +2,8 @@ package database
 
 import (
 	"context"
-	"fmt"
 	"kardashian_api/config"
+	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -11,45 +11,38 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const (
-	dbName string = "kuwtk"
-)
+var client *mongo.Client
+var DB *mongo.Database
 
-var dbClient *mongo.Client
-var db *mongo.Database
+func LoadClient() error {
 
-func Connect() {
+	if client == nil {
 
-	if dbClient == nil {
-		MongoUri := config.GetConfig().MongoUri
-
-		client, errClient := mongo.NewClient(options.Client().ApplyURI(MongoUri))
-		if errClient != nil {
-			fmt.Println(errClient)
-			panic(errClient)
+		c, err := mongo.NewClient(options.Client().ApplyURI(config.MongoURI))
+		if err != nil {
+			return err
 		}
-		dbClient = client
+		client = c
+		log.Printf("MongoDB Client: success creating the client")
+
+		ctx, cancel := Context()
+		defer cancel()
+
+		errConnect := client.Connect(ctx)
+		if errConnect != nil {
+			return errConnect
+		}
 
 	}
 
-	ctx, cancel := Context()
-	defer cancel()
+	DB = client.Database(config.MongoDBNAME)
+	log.Printf("MongoDB Client: success connecting to the db")
 
-	errConn := dbClient.Connect(ctx)
-	if errConn != nil {
-		panic(errConn)
-	}
-
-	errPing := dbClient.Ping(ctx, nil)
-	if errPing != nil {
-		panic(errPing)
-	}
-
-	db = dbClient.Database(dbName)
+	return nil
 }
 
 func Use(tableName string) *mongo.Collection {
-	coll := db.Collection(tableName)
+	coll := DB.Collection(tableName)
 	return coll
 }
 
@@ -72,5 +65,5 @@ func ValidCollection(coll string) bool {
 }
 
 func Collections() ([]string, error) {
-	return db.ListCollectionNames(context.TODO(), bson.D{})
+	return DB.ListCollectionNames(context.TODO(), bson.D{})
 }

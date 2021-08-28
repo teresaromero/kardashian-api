@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (r routes) episodesRoutes(rg *gin.RouterGroup) {
+func episodesRoutes(rg *gin.RouterGroup) {
 	episodes := rg.Group("episodes")
 	episodes.Use(middlewares.Pagination("episodes"))
 	{

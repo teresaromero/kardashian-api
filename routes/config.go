@@ -1,32 +1,31 @@
 package routes
 
 import (
+	"kardashian_api/config"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-type routes struct {
-	router *gin.Engine
-}
+var Router = gin.Default()
 
-func Routes() routes {
-	r := routes{
-		router: gin.Default(),
-	}
+func LoadRoutes() {
 
-	v1 := r.router.Group("/api/v1")
+	v1 := Router.Group("/api/v1")
 
-	r.collectionRoutes(v1)
-	r.episodesRoutes(v1)
+	collectionRoutes(v1)
+	episodesRoutes(v1)
 
-	r.router.NoRoute(func(c *gin.Context) {
+	Router.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"message": "Not found"})
 	})
 
-	return r
 }
 
-func (r routes) Run(addr ...string) error {
-	return r.router.Run()
+func Run() error {
+	err := Router.Run(":" + config.PORT)
+	if err != nil {
+		return err
+	}
+	return nil
 }
