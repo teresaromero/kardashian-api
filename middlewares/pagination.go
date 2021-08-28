@@ -3,10 +3,10 @@ package middlewares
 import (
 	"context"
 	"errors"
-	"kardashian_api/custom_errors"
 	"kardashian_api/database"
 	"kardashian_api/models"
 	"kardashian_api/utils"
+	"kardashian_api/utils/http_errors"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -43,7 +43,7 @@ func Pagination(collection string) gin.HandlerFunc {
 		total := collectionTotalCount(collection, bson.D{})
 		err := validatePagination(skip, total)
 		if err != nil {
-			utils.HandleHttpError(c, custom_errors.BadRequest(err))
+			utils.HandleHttpError(c, http_errors.BadRequest(err))
 		} else {
 			paginationOpts := &models.PaginationOpts{
 				Page:  page,

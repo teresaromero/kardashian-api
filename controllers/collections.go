@@ -1,12 +1,12 @@
 package controllers
 
 import (
-	"kardashian_api/custom_errors"
 	"kardashian_api/models"
 	"kardashian_api/repository"
+	"kardashian_api/utils/http_errors"
 )
 
-func Collection(tableName string) (interface{}, *custom_errors.HttpError) {
+func Collection(tableName string) (interface{}, *http_errors.HttpError) {
 	if tableName == string(models.WikiEpisodes) {
 		return repository.GetAllWikiEpisodes()
 	} else if tableName == string(models.IMBDEpisodes) {
@@ -14,10 +14,19 @@ func Collection(tableName string) (interface{}, *custom_errors.HttpError) {
 	} else if tableName == string(models.IMBDEpisodeCredits) {
 		return repository.GetAllIMBDEpisodeCredits()
 	}
-	return nil, custom_errors.InvalidCollection(tableName)
+	return nil, http_errors.InvalidCollection(tableName)
 
 }
 
-func AvailableCollections(baseURL string) ([]*models.AvailableCollection, *custom_errors.HttpError) {
-	return repository.GetAvailableCollections(baseURL)
+func AvailableCollections(baseURL string) ([]*models.AvailableCollection, *http_errors.HttpError) {
+	var rsp []*models.AvailableCollection
+
+	colList, err := repository.GetAvailableCollections()
+	if err != nil {
+		return nil, err
+	}
+	for _, collection := range colList {
+		rsp = append(rsp, &models.AvailableCollection{Name: collection, Url: baseURL + collection})
+	}
+	return rsp, nil
 }

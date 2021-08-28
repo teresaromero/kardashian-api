@@ -1,17 +1,17 @@
 package utils
 
 import (
-	"kardashian_api/custom_errors"
+	"kardashian_api/utils/http_errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func HandleHttpError(c *gin.Context, err *custom_errors.HttpError) {
+func HandleHttpError(c *gin.Context, err *http_errors.HttpError) {
 	c.AbortWithStatusJSON(err.Status(), gin.H{"status": err.Status(), "message": err.Error()})
 }
 
-func HandleSingleResponse(c *gin.Context, data interface{}, err *custom_errors.HttpError) {
+func HandleSingleResponse(c *gin.Context, data interface{}, err *http_errors.HttpError) {
 	if err != nil {
 		HandleHttpError(c, err)
 	} else {
@@ -19,7 +19,7 @@ func HandleSingleResponse(c *gin.Context, data interface{}, err *custom_errors.H
 	}
 }
 
-func HandlePageResponse(c *gin.Context, data interface{}, err *custom_errors.HttpError) {
+func HandlePageResponse(c *gin.Context, data interface{}, err *http_errors.HttpError) {
 	if err != nil {
 		HandleHttpError(c, err)
 	} else {
