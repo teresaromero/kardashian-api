@@ -12,7 +12,13 @@ func ValidateCollection() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		collection := c.Param("collection")
 		if collection != "" {
-			isValid := database.ValidCollection(collection)
+			list, _ := database.ListOfCollections()
+			var isValid = false
+			for _, col := range list {
+				if col == collection {
+					isValid = true
+				}
+			}
 
 			if !isValid {
 				err := http_errors.InvalidCollection(collection)

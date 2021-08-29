@@ -2,13 +2,15 @@ package utils
 
 import (
 	"kardashian_api/utils/http_errors"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func HandleHttpError(c *gin.Context, err *http_errors.HttpError) {
-	c.AbortWithStatusJSON(err.Status(), gin.H{"status": err.Status(), "message": err.Error()})
+	log.Printf("Error HandleHttpError: %v", err.Err)
+	c.AbortWithStatusJSON(err.Status(), gin.H{"status": err.Status(), "message": err.Message})
 }
 
 func HandleSingleResponse(c *gin.Context, data interface{}, err *http_errors.HttpError) {

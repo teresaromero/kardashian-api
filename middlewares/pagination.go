@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"context"
 	"errors"
 	"kardashian_api/database"
 	"kardashian_api/models"
@@ -13,13 +12,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func collectionTotalCount(c string, filter bson.D) int64 {
-	total, _ := database.Use(c).CountDocuments(context.TODO(), filter)
-	return total
-}
-
-func validatePagination(skip int, total int64) error {
-	if int64(skip) > total {
+func validatePagination(skip int, total int) error {
+	if skip > total {
 		return errors.New("page out of range")
 	}
 	return nil
@@ -39,8 +33,11 @@ func paginationParams(pageQuery string) (page int, skip int, limit int) {
 
 func Pagination(collection string) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		total := database.CountCollectionDocs(collection, bson.M{})
+		if total == 0 {
+			utils.HandleHttpError(c, http_errors.BadRequest(errors.New("no documents for this collection")))
+		}
 		page, skip, limit := paginationParams(c.Query("page"))
-		total := collectionTotalCount(collection, bson.D{})
 		err := validatePagination(skip, total)
 		if err != nil {
 			utils.HandleHttpError(c, http_errors.BadRequest(err))
@@ -49,7 +46,7 @@ func Pagination(collection string) gin.HandlerFunc {
 				Page:  page,
 				Limit: limit,
 				Skip:  skip,
-				Total: int(total),
+				Total: total,
 			}
 			c.Request = utils.AddToRequest(c.Request, "pagination", paginationOpts)
 
