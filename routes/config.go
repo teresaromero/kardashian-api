@@ -11,6 +11,9 @@ var Router = gin.Default()
 
 func LoadRoutes() {
 
+	auth := Router.Group("/auth")
+	authRoutes(auth)
+
 	v1 := Router.Group("/api/v1")
 
 	collectionRoutes(v1)
