@@ -1,4 +1,4 @@
-package custom_errors
+package http_errors
 
 import (
 	"fmt"
@@ -8,10 +8,11 @@ import (
 type HttpError struct {
 	StatusCode int
 	Err        error
+	Message    string
 }
 
 func (r *HttpError) Error() string {
-	return r.Err.Error()
+	return r.Message
 }
 
 func (r *HttpError) Status() int {
@@ -22,6 +23,7 @@ func BadRequest(err error) *HttpError {
 	return &HttpError{
 		StatusCode: http.StatusBadRequest,
 		Err:        err,
+		Message:    "⚠️ Oops... Seems you requested something wrong!",
 	}
 }
 
@@ -29,6 +31,7 @@ func InternalServerError(err error) *HttpError {
 	return &HttpError{
 		StatusCode: http.StatusInternalServerError,
 		Err:        err,
+		Message:    "🔥 Oops... Seems something is wrong on our servers!",
 	}
 }
 

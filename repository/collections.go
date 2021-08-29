@@ -1,63 +1,67 @@
 package repository
 
 import (
-	"kardashian_api/custom_errors"
+	"context"
+	"go.mongodb.org/mongo-driver/mongo"
 	"kardashian_api/database"
 	"kardashian_api/models"
+	"kardashian_api/utils/http_errors"
 
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func GetAvailableCollections(baseURL string) ([]*models.AvailableCollection, *custom_errors.HttpError) {
+func GetAvailableCollections() ([]string, *http_errors.HttpError) {
 
-	cls, err := database.Collections()
+	lcn, err := database.DB.ListCollectionNames(context.TODO(), bson.M{})
 	if err != nil {
-		return nil, custom_errors.InternalServerError(err)
+		return nil, http_errors.InternalServerError(err)
 	}
 
-	var rsp []*models.AvailableCollection
-	baseUrl := baseURL
-	for _, col := range cls {
-		rsp = append(rsp, &models.AvailableCollection{Name: col, Url: baseUrl + col})
-	}
-
-	return rsp, nil
+	return lcn, nil
 }
 
-func GetAllCollection(items interface{}, collection string) (interface{}, *custom_errors.HttpError) {
+func GetAllCollection(items interface{}, collection string) *http_errors.HttpError {
 
-	ctx, cancel := database.Context()
-	defer cancel()
-
-	cursor, err := database.Use(collection).Find(ctx, bson.D{})
-
-	if err != nil {
-		return nil, custom_errors.InternalServerError(err)
+	ctx := context.TODO()
+	cursor, errFind := database.DB.Collection(collection).Find(ctx, bson.M{})
+	if errFind != nil {
+		return http_errors.InternalServerError(errFind)
 	}
-	defer cursor.Close(ctx)
+	defer func(cursor *mongo.Cursor, ctx context.Context) {
+		err := cursor.Close(ctx)
+		if err != nil {
+		}
+	}(cursor, ctx)
 
-	err = cursor.All(ctx, &items)
-	if err != nil {
-		return nil, custom_errors.InternalServerError(err)
+	errAll := cursor.All(ctx, &items)
+	if errAll != nil {
+		return http_errors.InternalServerError(errAll)
 	}
 
+	return nil
+}
+
+func GetAllIMBDEpisodes() (items []models.IMBDEpisode, err *http_errors.HttpError) {
+	err = GetAllCollection(items, string(models.IMBDEpisodes))
+	if err != nil {
+		return nil, err
+	}
 	return items, nil
 }
 
-func GetAllIMBDEpisodes() (interface{}, *custom_errors.HttpError) {
-	var items []models.IMBDEpisode
-	return GetAllCollection(items, string(models.IMBDEpisodes))
+func GetAllWikiEpisodes() (items []models.WikiEpisode, err *http_errors.HttpError) {
+	err = GetAllCollection(items, string(models.WikiEpisodes))
+	if err != nil {
+		return nil, err
+	}
+	return items, nil
 
 }
 
-func GetAllWikiEpisodes() (interface{}, *custom_errors.HttpError) {
-	var items []models.WikiEpisode
-	return GetAllCollection(items, string(models.WikiEpisodes))
-
-}
-
-func GetAllIMBDEpisodeCredits() (interface{}, *custom_errors.HttpError) {
-	var items []models.IMBDEpisodeCredit
-	return GetAllCollection(items, string(models.IMBDEpisodeCredits))
-
+func GetAllIMBDEpisodeCredits() (items []models.IMBDEpisodeCredit, err *http_errors.HttpError) {
+	err = GetAllCollection(items, string(models.IMBDEpisodeCredits))
+	if err != nil {
+		return nil, err
+	}
+	return items, nil
 }

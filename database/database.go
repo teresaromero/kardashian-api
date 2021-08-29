@@ -2,8 +2,8 @@ package database
 
 import (
 	"context"
-	"fmt"
 	"kardashian_api/config"
+	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -11,73 +11,74 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const (
-	dbName string = "kuwtk"
-)
+var client *mongo.Client
+var DB *mongo.Database
 
-var dbClient *mongo.Client
-var db *mongo.Database
-
-func Connect() {
-
-	if dbClient == nil {
-		MONGO_URI := config.GetConfig().MONGO_URI
-
-		client, err_client := mongo.NewClient(options.Client().ApplyURI(MONGO_URI))
-		if err_client != nil {
-			fmt.Println(err_client)
-			panic(err_client)
-		}
-		dbClient = client
-
-	}
-
+func connectClient() error {
 	ctx, cancel := Context()
 	defer cancel()
 
-	err_conn := dbClient.Connect(ctx)
-	if err_conn != nil {
-		panic(err_conn)
+	err := client.Connect(ctx)
+	if err != nil {
+		return err
 	}
-
-	err_ping := dbClient.Ping(ctx, nil)
-	if err_ping != nil {
-		panic(err_ping)
-	}
-
-	db = dbClient.Database(dbName)
+	log.Printf("✅ MongoDB Client: connect success")
+	return nil
 }
 
-func Disconnect() {
-	err_disc := dbClient.Disconnect(context.Background())
-	if err_disc != nil {
-		panic(err_disc)
+func newClient() error {
+	c, err := mongo.NewClient(options.Client().ApplyURI(config.MongoURI))
+	if err != nil {
+		return err
 	}
+	client = c
+	log.Printf("✅ MongoDB Client: client success")
+	return nil
 }
 
-func Use(tableName string) *mongo.Collection {
-	coll := db.Collection(tableName)
-	return coll
+func dbSetup() {
+	DB = client.Database(config.MongoDBNAME)
+
+}
+func LoadClient() error {
+	var err error
+	if client == nil {
+		err = newClient()
+		if err != nil {
+			return err
+		}
+		err = connectClient()
+		if err != nil {
+			return err
+		}
+	}
+	dbSetup()
+	return nil
 }
 
 func Context() (context.Context, context.CancelFunc) {
-	return context.WithTimeout(context.Background(), 5*time.Second)
+	return context.WithTimeout(context.Background(), 3*time.Second)
 }
 
-func ValidCollection(coll string) bool {
-	coll_lst, err_coll := Collections()
+func ListOfCollections() ([]string, error) {
+	ctx, cancel := Context()
+	defer cancel()
 
-	if err_coll != nil {
-		return false
+	list, err := DB.ListCollectionNames(ctx, bson.D{})
+	if err != nil {
+		return nil, err
 	}
-	for _, c := range coll_lst {
-		if c == coll {
-			return true
-		}
-	}
-	return false
+	return list, err
 }
 
-func Collections() ([]string, error) {
-	return db.ListCollectionNames(context.TODO(), bson.D{})
+func CountCollectionDocs(c string, filter bson.M) int {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	opts := options.Count().SetMaxTime(2 * time.Second)
+	total, err := DB.Collection(c).CountDocuments(ctx, filter, opts)
+	if err != nil {
+		log.Printf("Error CountCollectionDocs %v - %v", c, err)
+	}
+	return int(total)
 }

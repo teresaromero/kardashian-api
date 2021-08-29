@@ -1,26 +1,21 @@
 package config
 
 import (
-	"log"
-	"os"
-
 	"github.com/joho/godotenv"
+	"os"
 )
 
-type Configuration struct {
-	MONGO_URI string
-}
+var MongoURI = "mongodb://localhost:27017"
+var MongoDBNAME = "kuwtk"
+var PORT = "5000"
 
-func GetConfig() Configuration {
-	var configuration = Configuration{
-		MONGO_URI: os.Getenv("MONGO_URI"),
+func LoadEnv() error {
+	err := godotenv.Load()
+	if err != nil {
+		return err
 	}
-	return configuration
-}
-
-func LoadEnv() {
-	err_env := godotenv.Load()
-	if err_env != nil {
-		log.Fatal("Error loading .env file")
-	}
+	MongoURI = os.Getenv("MONGO_URI")
+	MongoDBNAME = os.Getenv("MONGO_DBNAME")
+	PORT = os.Getenv("PORT")
+	return nil
 }

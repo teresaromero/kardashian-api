@@ -1,21 +1,22 @@
-package utils
+package response
 
 import (
-	"context"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"kardashian_api/models"
+	"kardashian_api/utils/http_errors"
+	"kardashian_api/utils/request"
+	"log"
 	"net/http"
 	"reflect"
-	"strings"
 )
 
-func pageResponse(r *http.Request, data interface{}) *models.Page {
-
+func mapPage(r *http.Request, data interface{}) *models.Page {
 	d := reflect.ValueOf(data)
 	size := d.Len()
 
-	p := GetPaginationContext(r)
-	u := getRequestURI(r)
+	p := request.GetContextValue(r, "pagination").(*models.PaginationOpts)
+	u := request.GetURI(r)
 	self := fmt.Sprintf("%s?page=%d", u, p.Page)
 
 	var links models.Links
@@ -54,22 +55,19 @@ func pageResponse(r *http.Request, data interface{}) *models.Page {
 		Total:   p.Total,
 	}
 	return page
-
 }
 
-func AddToRequest(r *http.Request, key interface{}, value interface{}) *http.Request {
-	return r.WithContext(context.WithValue(r.Context(), key, value))
+func HttpError(c *gin.Context, err *http_errors.HttpError) {
+	log.Printf("Error HandleHttpError: %v", err.Err)
+	c.AbortWithStatusJSON(err.Status(), gin.H{"status": err.Status(), "message": err.Message})
 }
 
-func getValueFromRequest(r *http.Request, key string) interface{} {
-	return r.Context().Value(key)
+func SingleResponse(c *gin.Context, data interface{}) {
+	c.JSON(http.StatusOK, data)
 }
 
-func GetPaginationContext(r *http.Request) *models.PaginationOpts {
-	return getValueFromRequest(r, "pagination").(*models.PaginationOpts)
-}
+func PageResponse(c *gin.Context, data interface{}) {
+	page := mapPage(c.Request, data)
+	c.JSON(http.StatusOK, page)
 
-func getRequestURI(r *http.Request) string {
-	u := strings.Split(r.RequestURI, "?")
-	return strings.TrimSuffix(u[0], "/")
 }
