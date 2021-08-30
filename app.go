@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	errEnv := config.LoadEnv()
+	errEnv := config.LoadEnv("../.env")
 	if errEnv != nil {
 		log.Fatalf("Fatal Error: %v", errEnv)
 	}

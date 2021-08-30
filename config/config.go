@@ -6,11 +6,11 @@ import (
 )
 
 var MongoURI = "mongodb://localhost:27017"
-var MongoDBNAME = "kuwtk"
+var MongoDBNAME = ""
 var PORT = "5000"
 
-func LoadEnv() error {
-	err := godotenv.Load()
+func LoadEnv(path string) error {
+	err := godotenv.Load(path)
 	if err != nil {
 		return err
 	}
