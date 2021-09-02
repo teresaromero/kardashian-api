@@ -33,7 +33,7 @@ def scrap_season_imbd_html(html: BeautifulSoup) -> list[ImbdEpisode]:
     episode_list = html.select("div.list.detail.eplist > div")
     for episode in episode_list:
         ep = ImbdEpisode()
-
+        ep['image_url'] = ""
         ep['imbd_id'] = episode.select_one("div.image > a > div").get("data-const")
         image_url_raw = episode.select_one("div.image > a > div > img")
         if image_url_raw:
@@ -46,13 +46,14 @@ def scrap_season_imbd_html(html: BeautifulSoup) -> list[ImbdEpisode]:
 
         air_date_raw = episode.select_one(
             "div.info > div.airdate")
-
+        ep['air_date'] = 0
         if air_date_raw:
             raw_air_date = air_date_raw.get_text().replace("\n", "").strip()
             ep['air_date'] = date_str_to_timestamp(raw_air_date)
 
         ep['title'] = episode.select_one("div.info > strong > a").get("title").strip()
 
+        ep['imbd_rate'] = 0
         imbd_rate_raw = episode.select_one(
             "div.info span.ipl-rating-star__rating")
         if imbd_rate_raw:
@@ -60,12 +61,14 @@ def scrap_season_imbd_html(html: BeautifulSoup) -> list[ImbdEpisode]:
 
         imbd_rate_votes_raw = episode.select_one(
             "div.info span.ipl-rating-star__total-votes")
+        ep['imbd_rate_votes'] = 0
         if imbd_rate_votes_raw:
             ep['imbd_rate_votes'] = int(re.sub(
                 r"([()])", "", imbd_rate_votes_raw.get_text()))
 
         description_raw = episode.select_one(
             "div.info > div[itemprop='description']")
+        ep['description'] = ""
         if description_raw:
             ep['description'] = description_raw.get_text().replace("\n", "").strip()
         data.append(ep)
@@ -75,7 +78,7 @@ def scrap_season_imbd_html(html: BeautifulSoup) -> list[ImbdEpisode]:
 
 def scrap_imbd_all_seasons() -> (list[ImbdEpisode], list[Exception]):
     imbd_base_url = "https://www.imdb.com/title/tt1086761"
-    seasons = range(1, 2)
+    seasons = range(1, 21)
     errors = []
     data = []
     for s in seasons:
